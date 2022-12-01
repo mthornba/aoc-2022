@@ -1,5 +1,7 @@
 # Usage
 
+Must use `gawk` for the `asort` function.
+
 ```shell
 $ ./cal_count.awk input
 Most calories: 71934
