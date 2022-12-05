@@ -16,11 +16,14 @@ function push(i,val){
 
 function mv(count,from,to,mode){
   if(mode == "9000"){
-    for(x=1;x<=count;x++)push(to,pop(from,1))
+    repeat=count
+    num=1
   }
   if(mode == "9001"){
-    push(to,pop(from,count))
+    repeat=1
+    num=count
   }
+  for(x=1;x<=repeat;x++)push(to,pop(from,num))
 }
 
 BEGIN{
