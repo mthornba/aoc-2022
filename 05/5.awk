@@ -1,21 +1,26 @@
 #!/usr/bin/env awk -f
 
-function peek(i){
-  return substr(stack[i],length(stack[i]),1)
+function peek(i,len){
+  return substr(stack[i],length(stack[i])-len+1,length(stack[i]))
 }
 
-function pop(i){
-  letter=peek(i)
-  stack[i]=substr(stack[i],0,length(stack[i])-1)
-  return letter
+function pop(i,len){
+  popstr=peek(i,len)
+  stack[i]=substr(stack[i],0,length(stack[i])-len)
+  return popstr
 }
 
 function push(i,val){
   return stack[i]=stack[i] val
 }
 
-function mv(k,i,j){
-  for(x=1;x<=k;x++)push(j,pop(i))
+function mv(count,from,to,mode){
+  if(mode == "9000"){
+    for(x=1;x<=count;x++)push(to,pop(from,1))
+  }
+  if(mode == "9001"){
+    push(to,pop(from,count))
+  }
 }
 
 BEGIN{
@@ -31,12 +36,9 @@ BEGIN{
 }
 {
   if($1 != "move")next
-  mv($2,$4,$6)
+  mv($2,$4,$6,mode)
 }
 END{
-  for(i=1;i<=9;i++)push("code",peek(i))
-  # print stack[1]
-  # print stack[2]
-  # print stack[3]
+  for(i=1;i<=9;i++)push("code",peek(i,1))
   print stack["code"]
 }
