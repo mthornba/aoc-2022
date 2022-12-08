@@ -75,9 +75,11 @@ END{
   print "Free: " space_unused
   print "Need to free: " need_to_free
 
+  smallest=dirsizes["/"]
   for(k in dirsizes){
     if(dirsizes[k] > need_to_free){
-      print dirsizes[k]
+      if(dirsizes[k]<smallest)smallest=dirsizes[k]
     }
   }
+  print "Smallest dir to delete =",smallest
 }
