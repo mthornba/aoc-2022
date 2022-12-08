@@ -3,6 +3,7 @@
 BEGIN{
   dir_depth=0
   dircount=0
+  dirs[0]="/"
 }
 {
   if($1 == "$"){
@@ -49,16 +50,34 @@ END{
   for(i in dirs){
     # print dirs[i]
     regex="^" dirs[i]
-    sum=0
+    sum[i]=0
     for(j in sizes)
       if(j ~ regex){
         # print "dir: " dirs[i] " j: " j " size: " sizes[j]
-        sum=sum+sizes[j]
+        sum[i]=sum[i]+sizes[j]
       }
-    if(sum < 100000){
-      # print dirs[i] ": " sum
-      total=total+sum
+      dirsizes[dirs[i]]=sum[i]
+      # print dirs[i] ": " dirsizes[dirs[i]]
+      if(sum[i] < 100000){
+        total=total+sum[i]
+      }
+  }
+  print "Part 1: " total
+
+  space_total=70000000
+  space_free_target=30000000
+  space_used=sum[0]
+  space_unused=space_total - space_used
+  need_to_free=space_free_target - space_unused
+
+  print "Part 2:"
+  print "Used: " space_used
+  print "Free: " space_unused
+  print "Need to free: " need_to_free
+
+  for(k in dirsizes){
+    if(dirsizes[k] > need_to_free){
+      print dirsizes[k]
     }
   }
-  print total
 }
