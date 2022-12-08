@@ -41,12 +41,24 @@ BEGIN{
   }
 }
 END{
-  printf "\nFiles:\n"
-  for(key in sizes)
-    print key ": " sizes[key]
+  # printf "\nFiles:\n"
+  # for(key in sizes)
+    # print key ": " sizes[key]
 
-  printf "\nDirs:\n"
-  for(key in dirs){
-    print dirs[key]
+  # printf "\nDirs:\n"
+  for(i in dirs){
+    # print dirs[i]
+    regex="^" dirs[i]
+    sum=0
+    for(j in sizes)
+      if(j ~ regex){
+        # print "dir: " dirs[i] " j: " j " size: " sizes[j]
+        sum=sum+sizes[j]
+      }
+    if(sum < 100000){
+      # print dirs[i] ": " sum
+      total=total+sum
+    }
   }
+  print total
 }
