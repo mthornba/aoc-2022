@@ -3,6 +3,7 @@
 BEGIN{
   # tree["/"]=""
   index_dir=0
+  dircount=0
 }
 {
   if($1 == "$"){
@@ -19,15 +20,28 @@ BEGIN{
         cd[index_dir]=$3
         # print index_dir ": " cd[index_dir]
       }
-      j = cd[0]
-      for(key=1; key<=index_dir; key++)
-        j = j cd[key] "/"
-      print j
-      print "Current dir: " cd[index_dir]
     }
+    path = "/"
+    for(key=1; key<=index_dir; key++)
+      path = path cd[key] "/"
+    print path
   }
+  if($1 == "dir"){
+    ++dircount
+    dirs[dircount]=path "/" $2
+  }
+  if($1 ~ /^[0-9]+$/){
+    filepath=path $2
+    sizes[filepath]=$1
+    # print filepath " = " sizes[filepath]
+  }
+  # print "Current dir: " cd[index_dir]
 }
 END{
-  # for(key in tree)
-  # print key ": " tree[key]
+  print "Dirs:"
+  for(key in dirs)
+    print dirs[key]
+  print "Files:"
+  for(key in sizes)
+    print key ": " sizes[key]
 }
