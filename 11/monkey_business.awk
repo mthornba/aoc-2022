@@ -1,11 +1,5 @@
 #!/usr/bin/env awk -f
 
-function math(var,op){
-  old=var
-  print "old="old
-  sprintf(op,"%d")
-}
-
 function print_monkeys(){
   for(m=0;m<monkey_count;m++){
     printf "Monkey: %d\n",m
@@ -29,7 +23,10 @@ function inspect(n){
 }
 
 function operate(){
-  # run operation
+  cmd="old="worry"; printf $(("op"))"
+  cmd | getline new
+  close(cmd)
+  return new
 }
 
 function bored(worry){
@@ -104,12 +101,13 @@ BEGIN{
 
 }
 END{
-  print_monkeys()
+  # print_monkeys()
 
   for(r=1;r<=rounds;r++){
     for(m=0;m<monkey_count;m++){
       for(n=item_pointer[m];n<=length(items[m]);n++){
         inspect(m)
+        print worry
         operate()
         bored(worry)
         to=test(m)
