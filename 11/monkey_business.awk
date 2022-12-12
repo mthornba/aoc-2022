@@ -23,14 +23,16 @@ function inspect(n){
 }
 
 function operate(m){
-  cmd="old="worry"; printf $(("op_func[m]"))"
+  # print op_func[m],worry
+  cmd="echo 'old="worry";"op_func[m]"'|bc"
   cmd | getline worry
   close(cmd)
   return worry
 }
 
-function bored(old){
-  new=int(old/3)
+function bored(old,modulus){
+  # new=int(old/3)
+  new=old%modulus
   # print worry
   return new
 }
@@ -53,8 +55,8 @@ BEGIN{
   # OFS="="
   worry=0
   monkey_count=0
-  round=1
-  rounds=20
+  modulus=1
+  rounds=10000
 }
 {
   k=$1; v=$2
@@ -86,6 +88,7 @@ BEGIN{
   if(k == "Test"){
     match(v, /[0-9]+/)
     dividend[monkey_num]=substr(v, RSTART, RLENGTH)
+    modulus=modulus*dividend[monkey_num]
     # print dividend[monkey_num]
   }
 
@@ -104,20 +107,26 @@ BEGIN{
 }
 END{
   print_monkeys()
+  print modulus
 
   for(r=1;r<=rounds;r++){
     for(m=0;m<monkey_count;m++){
       for(n=item_pointer[m];n<=length(items[m]);n++){
         inspect(m)
         operate(m)
-        worry=bored(worry)
+        worry=bored(worry,modulus)
         to=test(m)
         throw(to)
       }
       inspections[m]=item_pointer[m]-1
     }
-    # printf "### After Round %d: \n\n",r
-    # print_monkeys()
+    if(r==1 || r==20 || r%1000 == 0){
+      printf "### After Round %d: \n\n",r
+      # print_monkeys()
+      for(m=0;m<monkey_count;m++){
+        print inspections[m]
+      }
+    }
   }
   asort(inspections,inspections,"@val_num_desc")
   monkey_business=inspections[1]*inspections[2]
