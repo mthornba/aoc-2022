@@ -22,15 +22,17 @@ function inspect(n){
   return worry
 }
 
-function operate(){
-  cmd="old="worry"; printf $(("op"))"
-  cmd | getline new
+function operate(m){
+  cmd="old="worry"; printf $(("op_func[m]"))"
+  cmd | getline worry
   close(cmd)
-  return new
+  return worry
 }
 
-function bored(worry){
-  worry=int(worry/3)
+function bored(old){
+  new=int(old/3)
+  # print worry
+  return new
 }
 
 function test(m){
@@ -101,15 +103,17 @@ BEGIN{
 
 }
 END{
-  # print_monkeys()
+  print_monkeys()
 
   for(r=1;r<=rounds;r++){
     for(m=0;m<monkey_count;m++){
       for(n=item_pointer[m];n<=length(items[m]);n++){
         inspect(m)
-        print worry
-        operate()
-        bored(worry)
+        # print worry
+        operate(m)
+        # print worry
+        worry=bored(worry)
+        # print worry
         to=test(m)
         throw(to)
       }
