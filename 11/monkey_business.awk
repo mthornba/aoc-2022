@@ -1,4 +1,4 @@
-#!/usr/bin/env awk -f
+#!/usr/bin/env gawk -f
 
 function print_monkeys(){
   for(m=0;m<monkey_count;m++){
@@ -54,7 +54,7 @@ BEGIN{
   worry=0
   monkey_count=0
   round=1
-  rounds=1
+  rounds=20
 }
 {
   k=$1; v=$2
@@ -109,17 +109,18 @@ END{
     for(m=0;m<monkey_count;m++){
       for(n=item_pointer[m];n<=length(items[m]);n++){
         inspect(m)
-        # print worry
         operate(m)
-        # print worry
         worry=bored(worry)
-        # print worry
         to=test(m)
         throw(to)
       }
+      inspections[m]=item_pointer[m]-1
     }
-    printf "### After Round %d: \n\n",r
-    print_monkeys()
+    # printf "### After Round %d: \n\n",r
+    # print_monkeys()
   }
+  asort(inspections,inspections,"@val_num_desc")
+  monkey_business=inspections[1]*inspections[2]
+  print "Monkey Business Score:",monkey_business
 
 }
