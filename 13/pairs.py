@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 import ast
-import itertools
-from itertools import groupby
 
 # read file as a tuple of tuples of lists
 
@@ -16,3 +14,11 @@ with open("sample") as f:
       i=i+1
 
 print(pairs)
+
+pairs=tuple(tuple(map(ast.literal_eval, x)) for x in pairs)
+
+for pair in pairs:
+  print(pair)
+
+# iterate over tuple
+  # iterate over elements of both lists, comparing them
