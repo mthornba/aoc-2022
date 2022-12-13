@@ -2,24 +2,30 @@
 
 from networkx import grid_2d_graph
 from networkx import shortest_path_length
+from networkx import multi_source_dijkstra_path_length
 
 # read file and create a coordinate grid
 with open("input") as f:
   grid = [list(line.strip()) for line in f]
+# print(grid)
 
 rows=len(grid)
 cols=len(grid[0])
+
+# find all a's (allas) for part 2
+allas_nodes=[(i,row.index('a')) for i, row in enumerate(grid) if 'a' in row]
+# print(allas_nodes)
 
 # replace S with a & E with z
 startpoint='S'
 startpoint_node=[(i,row.index(startpoint)) for i, row in enumerate(grid) if startpoint in row][0]
 (sx,sy)=startpoint_node
-print(startpoint_node)
+print('Start:',startpoint_node)
 
 endpoint='E'
 endpoint_node=[(i,row.index(endpoint)) for i, row in enumerate(grid) if endpoint in row][0]
 (ex,ey)=endpoint_node
-print(endpoint_node)
+print('End:',endpoint_node)
 
 grid[sx][sy]='a'
 grid[ex][ey]='z'
@@ -56,4 +62,8 @@ def edge_weight(src,tgt,edict):
   return 1
 
 spl=shortest_path_length(graph, source=startpoint_node, target=endpoint_node, weight=edge_weight, method='dijkstra')
-print(spl)
+print('Part 1:',spl)
+
+# multi_source_dijkstra_path_length returns paths from sources list to all nodes, so need to extract target
+spl_allas=multi_source_dijkstra_path_length(graph, sources=allas_nodes, cutoff=spl, weight=edge_weight)[endpoint_node]
+print('Part 2:',spl_allas)
