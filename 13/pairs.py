@@ -1,51 +1,60 @@
 #!/usr/bin/env python3
-import ast
+from ast import literal_eval
+from itertools import zip_longest
 
-# read file as a tuple of tuples of lists
+def zipcomp(l,r):
+  print('zipping')
+  if isinstance(l,list) and isinstance(r,list):
+    print('list:list',l,r)
+    zipped=zip_longest(l,r)
+    pzipped=list(zipped)
+    print(pzipped)
+    for l,r in zipped:
+      if isinstance(l,list) and isinstance(r,list):
+        print('list:list',l,r)
+        zipcomp(l,r)
+      elif isinstance(l,int) and isinstance(r,int):
+        # print('int:int',l,r)
+        if l > r:
+          ordered=False
+          print('index',i,'is out of order')
+          return
+        else:
+          ordered=True
+      elif isinstance(l,int) and isinstance(r,list):
+        l=[l]
+        zipcomp(l,r)
+      elif isinstance(l,list) and isinstance(r,int):
+        r=[r]
+        zipcomp(l,r)
+      else:
+        print('one integer')
+    # print(ordered)
 
-pairs=[[]]
-i=0
+pair=[]
+i=1
 with open("sample") as f:
   for line in f:
     if line.strip():
-      pairs[i].append(line.strip())
+      pair.append(line.strip())
+      # print(pair)
     else:
-      pairs.append([])
+      pair=list(map(literal_eval, pair))
+      print('\nindex:',i,pair)
+      # pairs.append([])
+      # ordered=False
+      left,right = pair
+      # print(left,right)
+      zipcomp(left,right)
+      pair=[]
       i=i+1
+      # break
 
-print(pairs,'\n')
 
-pairs=tuple(tuple(map(ast.literal_eval, x)) for x in pairs)
 # pairs=[list(map(ast.literal_eval, x)) for x in pairs]
+
+# print('\n',pair)
 
 # iterate over tuple
   # iterate over lists
     # elements can be both lists, both integers or 1 integer
-
-
-def zipcomp(l,r):
-  print(l,r)
-  zipped=zip(l,r)
-  # print(list(zipped))
-  for a,b in zipped:
-    print(a,b)
-    if isinstance(a,int) and isinstance(b,int):
-      # print('both integers')
-      if a <= b:
-        ordered=True
-      else:
-        ordered=False
-        print('out of order')
-        return
-  #   elif isinstance(a,list) and isinstance(b,list):
-  #     print('both lists')
-  #   else:
-  #     print('one integer')
-  # print(ordered)
-
-# ordered=False
-for left,right in pairs:
-  if isinstance(left,list) and isinstance(right,list):
-    zipcomp(left,right)
-    # print(ordered)
-    break
