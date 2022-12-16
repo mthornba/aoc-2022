@@ -22,11 +22,36 @@ with open('sample') as f:
 
 print(sensors)
 print(beacons)
+num=len(sensors)
 
 # build array of manhattan distances
-for i in range(len(sensors)):
+for i in range(num):
   (xs,ys) = sensors[i]
   (xb,yb) = beacons[i]
   distance.append(abs(xb - xs) + abs(yb - ys))
 
 print(distance)
+
+# build list of coords within manhattan distance for each sensor
+
+nobeacon=[set()]
+for i in range(num):  # num of sensors
+  M=distance[i]
+  (x,y)=sensors[i]
+  for j in range(M): # 0..M
+    # print(i)
+    nobeacon.append(set())
+    for k in range(M): # 0..M
+      # print(i,':',nobeacon[i])
+      # print(type(nobeacon[i]))
+      (nobeacon[i]).add((x+j,y+k-j))
+      # nobeacon[i].add((x-j,y-k-j))
+
+# add maps together to show all locations where there can't be a beacon
+
+# print(nobeacon)
+
+# clear coords that currently have beacons
+
+
+# find coords with y=2000000
