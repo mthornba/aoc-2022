@@ -6,8 +6,10 @@ import re
 sensors = []
 beacons = []
 distance = []
-target_y = 10
-filename = 'sample'
+# Ty = 10
+# filename = 'sample'
+Ty = 2000000
+filename = 'input'
 
 with open(filename) as f:
   lines = filter(None, (line.rstrip() for line in f))
@@ -23,7 +25,7 @@ with open(filename) as f:
       beacons.append((int(match.group(1)),int(match.group(2))))
 
 # print(sensors)
-# print(beacons)
+print(beacons)
 num=len(sensors)
 
 # build array of manhattan distances
@@ -40,33 +42,44 @@ nobeacon=[set()]
 nobeacon_sum=set()
 
 for i in range(num):  # num of sensors
-  M=distance[i]
-  nobeacon.append(set())
-  (x,y)=sensors[i]
-  for j in range(M+1): # 0..M+1
-    # print(i)
-    for k in range(M+1): # 0..M+1
-      # print(i,':',nobeacon[i])
-      # print(type(nobeacon[i]))
-      (nobeacon[i]).add((x+j,y+k-j))
-      (nobeacon[i]).add((x-j,y-k-j))
-  # add sets together to show all locations where there can't be a beacon
-  nobeacon_sum = nobeacon_sum.union(nobeacon[i])
+# for i in range(7):  # num of sensors
+  print('Working on Sensor',i+1)
+  M = distance[i]          # Manhattan distance for Sensor i
+  nobeacon.append(set())   # add an empty set to nobeacon list (at index i)
+  (Sx,Sy)=sensors[i]       # get coords of Sensor i
+  D = Ty - Sy              # distance to Target y (Ty)
+  R = M - abs(D)           # if M>=D then set(points within M) intesects Ty
+  # print('M =',M)
+  # print('D =',D)
+  # print('R =',R)
+  if R >= 0:
+    for j in range(R+1):       # add coords for M intersect Ty
+      # print('Sx =',Sx,'R =',j)
+      # print('Sx - R =',Sx - j)
+      # print('Sx + R =',Sx + j)
+      # print((Sx-j,Ty))
+      # print((Sx+j,Ty))
+      (nobeacon[i]).add((Sx-j,Ty))
+      (nobeacon[i]).add((Sx+j,Ty))
+    # add sets together to show all locations where y=Ty and there can't be a beacon
+    nobeacon_sum = nobeacon_sum.union(nobeacon[i])
 
-# print(nobeacon_sum)
+print('Finished M intersect Ty')
 
 # clear coords that currently have beacons
-#   not required since they won't be counted in part 1
+nobeacon_sum.difference_update(set(beacons))
+print('Finished sum_difference')
 
 # find coords with y=2000000 (y=10 for sample)
+print(len(nobeacon_sum))
 
-count = 0
-xcoords=[]
-for x,y in nobeacon_sum:
-  if y==target_y:
-    xcoords.append(x)
-    xcoords.sort()
-    count=count+1
+# count = 0
+# xcoords=[]
+# for x,y in nobeacon_sum:
+#   if y==Ty:
+#     xcoords.append(x)
+#     xcoords.sort()
+#     count=count+1
 
-print('coords in row',target_y,':',xcoords)
-print(count)
+# print('xcoords in row',Ty,':',xcoords)
+# print(count)
