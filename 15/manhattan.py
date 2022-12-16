@@ -6,10 +6,19 @@ import re
 sensors = []
 beacons = []
 distance = []
-# Ty = 10
-# filename = 'sample'
-Ty = 2000000
-filename = 'input'
+Ty = 10
+filename = 'sample'
+# Ty = 2000000
+# filename = 'input'
+
+# Generate set of target square coords
+# (x,y) = (0,0) => (20,20)
+Tsquare = set()
+Dsquare = 20
+for x in range(Dsquare):
+  for y in range(Dsquare):
+    Tsquare.add((x,y))
+print(len(Tsquare))
 
 with open(filename) as f:
   lines = filter(None, (line.rstrip() for line in f))
@@ -42,8 +51,8 @@ nobeacon=[set()]
 nobeacon_sum=set()
 
 for i in range(num):  # num of sensors
-# for i in range(7):  # num of sensors
-  print('Working on Sensor',i+1)
+# for i in range(1):  # num of sensors
+  print('\nWorking on Sensor',i+1)
   M = distance[i]          # Manhattan distance for Sensor i
   nobeacon.append(set())   # add an empty set to nobeacon list (at index i)
   (Sx,Sy)=sensors[i]       # get coords of Sensor i
@@ -52,26 +61,48 @@ for i in range(num):  # num of sensors
   # print('M =',M)
   # print('D =',D)
   # print('R =',R)
-  if R >= 0:
-    for j in range(R+1):       # add coords for M intersect Ty
-      # print('Sx =',Sx,'R =',j)
+  # if R >= 0:
+  for j in range(M+1):       # add coords for M intersect Ty
+    for k in range(M-j+1):
+      # Syd = M - j
+      # print('Sx =',Sx,'j =',j)
+      # print('Sy =',Sy,'k =',k)
       # print('Sx - R =',Sx - j)
       # print('Sx + R =',Sx + j)
       # print((Sx-j,Ty))
       # print((Sx+j,Ty))
-      (nobeacon[i]).add((Sx-j,Ty))
-      (nobeacon[i]).add((Sx+j,Ty))
-    # add sets together to show all locations where y=Ty and there can't be a beacon
-    nobeacon_sum = nobeacon_sum.union(nobeacon[i])
+      # print('Adding...',(Sx+j,Sy+k),(Sx+j,Sy-k),(Sx-j,Sy+k),(Sx-j,Sy-k))
+      (nobeacon[i]).add((Sx,Sy))
+      (nobeacon[i]).add((Sx+j,Sy+k))
+      (nobeacon[i]).add((Sx+j,Sy-k))
+      (nobeacon[i]).add((Sx-j,Sy+k))
+      (nobeacon[i]).add((Sx-j,Sy-k))
+      # intersect with target square
+      Tsquare.difference_update(nobeacon[i])
+  # add sets together to show all locations where there can't be a beacon
+  # nobeacon_sum = nobeacon_sum.union(nobeacon[i])
+  # calculate Manhattan Area
+  Am = 1
+  for n in range(M+1):
+    Am = Am + 4*n
 
-print('Finished M intersect Ty')
+  (x,y)=Tsquare.pop()
+  tuning_signal = 4000000 * x + y
+  # print('nobeacon:',nobeacon[i])
+  print('length nobeacon = ',len(nobeacon[i]))
+  print('M =',M,'Am = ',Am)
+  print('Possible beacon locations:',len(Tsquare))
+  print('Beacon is at',Tsquare)
+  print('Tuning signal is',tuning_signal)
+
+# print('Finished M intersect Ty')
 
 # clear coords that currently have beacons
-nobeacon_sum.difference_update(set(beacons))
-print('Finished sum_difference')
+# nobeacon_sum.difference_update(set(beacons))
+# print('Finished sum_difference')
 
 # find coords with y=2000000 (y=10 for sample)
-print(len(nobeacon_sum))
+# print(len(nobeacon_sum))
 
 # count = 0
 # xcoords=[]
@@ -83,3 +114,17 @@ print(len(nobeacon_sum))
 
 # print('xcoords in row',Ty,':',xcoords)
 # print(count)
+
+# Part 2:
+#   - find where there could be a beacon
+#   - must be between x,y=0 and x,y=20 (x,y=4000000)
+#   - how to limit range to this square?
+#   - for each y, is there a free beacon spot?
+#   - no need to clear existing beacons this time
+#   - just need to find an empty spot
+
+#   - create a set of locations covered by M for each beacon
+#   - create a set covering coords of square range
+#   - union the sets to get total area covered by all M's
+#   - difference_update range with unioned M's
+#   - should be 1 coord left in range set
