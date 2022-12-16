@@ -50,20 +50,33 @@ print('Distances:',distance)
 nobeacon=[set()]
 nobeacon_sum=set()
 
+# limit value n to be within distance M
+def M_limit(n, M):
+  return max(min(M, n), -M)
+
 for i in range(num):  # num of sensors
-# for i in range(1):  # num of sensors
+# for i in range(1,2):  # num of sensors
   print('\nWorking on Sensor',i+1)
   M = distance[i]          # Manhattan distance for Sensor i
-  nobeacon.append(set())   # add an empty set to nobeacon list (at index i)
   (Sx,Sy)=sensors[i]       # get coords of Sensor i
+  nobeacon.append(set())   # add an empty set to nobeacon list (at index i)
+  nobeacon[i].add((Sx,Sy)) # add Sensor i coord to nobeacon list (at index i)
   D = Ty - Sy              # distance to Target y (Ty)
   R = M - abs(D)           # if M>=D then set(points within M) intesects Ty
   # print('M =',M)
   # print('D =',D)
   # print('R =',R)
   # if R >= 0:
-  for j in range(M+1):       # add coords for M intersect Ty
-    for k in range(M-j+1):
+  xRangeMin = M_limit(-Sx,M)
+  xRangeMax = M_limit(Dsquare-Sx,M)
+  # print('xRangeMin =',xRangeMin)
+  # print('xRangeMax =',xRangeMax)
+  for j in range(xRangeMin,xRangeMax+1):    # add coords for M intersect Ty
+    yRangeMin = max(M_limit(-Sy,M),abs(j)-M)
+    yRangeMax = min(M_limit(Dsquare-Sy,M),M-abs(j))
+    # print('yRangeMin =',yRangeMin)
+    # print('yRangeMax =',yRangeMax)
+    for k in range(yRangeMin,yRangeMax+1):
       # Syd = M - j
       # print('Sx =',Sx,'j =',j)
       # print('Sy =',Sy,'k =',k)
@@ -72,29 +85,26 @@ for i in range(num):  # num of sensors
       # print((Sx-j,Ty))
       # print((Sx+j,Ty))
       # print('Adding...',(Sx+j,Sy+k),(Sx+j,Sy-k),(Sx-j,Sy+k),(Sx-j,Sy-k))
-      (nobeacon[i]).add((Sx,Sy))
       (nobeacon[i]).add((Sx+j,Sy+k))
-      (nobeacon[i]).add((Sx+j,Sy-k))
-      (nobeacon[i]).add((Sx-j,Sy+k))
-      (nobeacon[i]).add((Sx-j,Sy-k))
       # intersect with target square
       Tsquare.difference_update(nobeacon[i])
   # add sets together to show all locations where there can't be a beacon
   # nobeacon_sum = nobeacon_sum.union(nobeacon[i])
-  # calculate Manhattan Area
+  # calculate Manhattan Area to verify length of nobeacon
   Am = 1
   for n in range(M+1):
     Am = Am + 4*n
 
-  (x,y)=Tsquare.pop()
-  tuning_signal = 4000000 * x + y
   # print('nobeacon:',nobeacon[i])
   print('length nobeacon = ',len(nobeacon[i]))
   print('M =',M,'Am = ',Am)
   print('Possible beacon locations:',len(Tsquare))
-  print('Beacon is at',Tsquare)
-  print('Tuning signal is',tuning_signal)
+  # print('Possible beacon locations:',Tsquare)
 
+(x,y)=Tsquare.pop()
+tuning_signal = 4000000 * x + y
+print('Beacon is at',(x,y))
+print('Tuning signal is',tuning_signal)
 # print('Finished M intersect Ty')
 
 # clear coords that currently have beacons
