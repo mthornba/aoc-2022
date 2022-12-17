@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Optimized Bubble sort in Python
-from itertools import zip_longest
+from itertools import chain
 import re
 import time
 start_time = time.monotonic_ns()
@@ -8,10 +8,11 @@ start_time = time.monotonic_ns()
 sensors = []
 beacons = []
 distance = []
-Ty = 10
-filename = 'sample'
-# Ty = 2000000
-# filename = 'input'
+# Ty = 10
+TxRange = range(0)
+# filename = 'sample'
+Ty = 2000000
+filename = 'input'
 
 with open(filename) as f:
   lines = filter(None, (line.rstrip() for line in f))
@@ -40,50 +41,23 @@ print('Distances:',distance)
 
 # build list of coords within manhattan distance for each sensor
 
-nobeacon=[set()]
-nobeacon_sum=set()
-
 for i in range(num):  # num of sensors
 # for i in range(7):  # num of sensors
   print('Working on Sensor',i+1)
   M = distance[i]          # Manhattan distance for Sensor i
-  nobeacon.append(set())   # add an empty set to nobeacon list (at index i)
   (Sx,Sy)=sensors[i]       # get coords of Sensor i
-  D = Ty - Sy              # distance to Target y (Ty)
-  R = M - abs(D)           # if M>=D then set(points within M) intesects Ty
+  D = abs(Ty - Sy)              # distance to Target y (Ty)
   # print('M =',M)
   # print('D =',D)
-  # print('R =',R)
-  if R >= 0:
-    for j in range(R+1):       # add coords for M intersect Ty
-      # print('Sx =',Sx,'R =',j)
-      # print('Sx - R =',Sx - j)
-      # print('Sx + R =',Sx + j)
-      # print((Sx-j,Ty))
-      # print((Sx+j,Ty))
-      (nobeacon[i]).add((Sx-j,Ty))
-      (nobeacon[i]).add((Sx+j,Ty))
-    # add sets together to show all locations where y=Ty and there can't be a beacon
-    nobeacon_sum = nobeacon_sum.union(nobeacon[i])
-
-print('Finished M intersect Ty')
-
-# clear coords that currently have beacons
-nobeacon_sum.difference_update(set(beacons))
-print('Finished sum_difference')
+  if M >= D:
+    TxRange = chain(TxRange, range(Sx+D-M,Sx+M-D+1))
+    # print(set(range(Sx+D-M,Sx+M-D+1)))
 
 # find coords with y=2000000 (y=10 for sample)
-print(len(nobeacon_sum))
 
-# count = 0
-# xcoords=[]
-# for x,y in nobeacon_sum:
-#   if y==Ty:
-#     xcoords.append(x)
-#     xcoords.sort()
-#     count=count+1
-
-# print('xcoords in row',Ty,':',xcoords)
-# print(count)
+# count beacons on target Y and subtract from ranges
+beaconCount = len({b for b in beacons if b[1] == Ty})
+# print(list(set(TxRange)))
+print(len(set(TxRange)) - beaconCount)
 
 print("--- %s microseconds ---" % ((time.monotonic_ns() - start_time)/1000))
