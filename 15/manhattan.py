@@ -2,14 +2,16 @@
 # Optimized Bubble sort in Python
 from itertools import zip_longest
 import re
+import time
+start_time = time.monotonic_ns()
 
 sensors = []
 beacons = []
 distance = []
-# Ty = 10
-# filename = 'sample'
-Ty = 2000000
-filename = 'input'
+Ty = 10
+filename = 'sample'
+# Ty = 2000000
+# filename = 'input'
 
 with open(filename) as f:
   lines = filter(None, (line.rstrip() for line in f))
@@ -83,3 +85,5 @@ print(len(nobeacon_sum))
 
 # print('xcoords in row',Ty,':',xcoords)
 # print(count)
+
+print("--- %s microseconds ---" % ((time.monotonic_ns() - start_time)/1000))
