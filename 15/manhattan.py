@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Optimized Bubble sort in Python
 from itertools import chain
-from itertools import tee
+import shapely
 import re
 import time
 start_time = time.monotonic_ns()
@@ -9,13 +9,14 @@ start_time = time.monotonic_ns()
 sensors = []
 beacons = []
 distance = []
-perimeter = []
-# Ty = 10
-# filename = 'sample'
-# Dsquare = 20
-Ty = 2000000
-filename = 'input'
-Dsquare = 4000000
+vertices = []
+polygons = []
+Ty = 10
+filename = 'sample'
+Dsquare = 20
+# Ty = 2000000
+# filename = 'input'
+# Dsquare = 4000000
 
 with open(filename) as f:
   lines = filter(None, (line.rstrip() for line in f))
@@ -30,66 +31,24 @@ with open(filename) as f:
       match = re.search(r"[^x]+x=(-?\d+),\s*y=(-?\d+)", b)
       beacons.append((int(match.group(1)),int(match.group(2))))
 
-# print(sensors)
-# print(set(beacons))
 num=len(sensors)
 
-# build list of coords of manhattan perimeter for each sensor
+# build list of vertex coords
 for i in range(num):
   print('Working on Sensor',i)
-  (xs,ys) = sensors[i]
-  (xb,yb) = beacons[i]
-  M=(abs(xb - xs) + abs(yb - ys))
+  (Sx,Sy) = sensors[i]
+  (Bx,By) = beacons[i]
+  M=(abs(Bx - Sx) + abs(By - Sy))
   distance.append(M)
-  pcoords=set()
-  for m in range(M+1): # 0..M
-    k=M-m
-    pcoords.add((xs+m,ys+k))
-    pcoords.add((xs+m,ys-k))
-    pcoords.add((xs-m,ys+k))
-    pcoords.add((xs-m,ys-k))
-  perimeter.append(pcoords)
-  # print(perimeter[i])
+  vertices.append(((Sx-M,Sy),(Sx,Sy+M),(Sx+M,Sy),(Sx,Sy-M)))
+  print(vertices[i])
+  polygons.append(shapely.Polygon(vertices[i]))
 
-intersections=set()
-for i,s1 in enumerate(perimeter[:-1]):
-  for j,s2 in enumerate(perimeter[i+1:]):
-    intersect=s1.intersection(s2)
-    print(f"Set{i+1} and Set{i+j+2} =",len(intersect))
-    intersections = intersections.union(intersect)
-
-print('Total intersections:',len(intersections))
-
-# print('Distances:',distance)
-
-for Ty in range(Dsquare+1):
-  if (Ty)%1000 == 0: print('Working on Y',Ty)
-  TxRange = range(0)
-  for i in range(num):  # num of sensors
-  # for i in range(7):  # num of sensors
-    # print('Sensor',i+1)
-    M = distance[i]          # Manhattan distance for Sensor i
-    (Sx,Sy)=sensors[i]       # get coords of Sensor i
-    D = abs(Ty - Sy)              # distance to Target y (Ty)
-    # if (i == 3 or i == 9) and Ty == 11:
-    #   print('Sensor:',i+1,'M:',M,'D:',D)
-    #   print('range:',range(max(Sx+D-M,0),min(Sx+M-D,Dsquare)+1))
-    if M >= D:
-      TxRange = chain(TxRange, range(max(Sx+D-M,0),min(Sx+M-D,Dsquare)+1))
-
-  # find coords with y=2000000 (y=10 for sample)
-
-  # count beacons on target Y and subtract from ranges
-  beaconCount = len({b for b in beacons if b[1] == Ty})
-  TxRange, TxRangeTest = tee(TxRange) # copy range to test length
-  TxRangeLen = len(set(TxRangeTest))
-  # print('Tlen:',TxRangeLen,'Dsq:',Dsquare)
-  if TxRangeLen < Dsquare+1:
-    print('x =',set(range(Dsquare+1)).difference(set(TxRange)))
-    print('y =',Ty)
-    # print(set(range(Dsquare+1)))
-    # print(set(TxRange))
-  # if (len(set(TxRange)) - beaconCount) == Dsquare: next
-  # else: print(Ty)
+zone = shapely.box(0, 0, Dsquare, Dsquare)
+nobeacon = shapely.union_all(polygons,1)
+print(shapely.difference(zone,nobeacon,1))
+tuningX,tuningY = list(chain.from_iterable(shapely.get_coordinates(shapely.difference(zone,nobeacon,1).centroid).tolist()))
+tuningFreq = 4000000 * tuningX + tuningY
+print('Tuning Frequency:',tuningFreq)
 
 print("--- %s microseconds ---" % ((time.monotonic_ns() - start_time)/1000))
