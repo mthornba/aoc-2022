@@ -9,6 +9,7 @@ start_time = time.monotonic_ns()
 sensors = []
 beacons = []
 distance = []
+perimeter = []
 # Ty = 10
 # filename = 'sample'
 # Dsquare = 20
@@ -33,15 +34,33 @@ with open(filename) as f:
 # print(set(beacons))
 num=len(sensors)
 
-# build array of manhattan distances
+# build list of coords of manhattan perimeter for each sensor
 for i in range(num):
+  print('Working on Sensor',i)
   (xs,ys) = sensors[i]
   (xb,yb) = beacons[i]
-  distance.append(abs(xb - xs) + abs(yb - ys))
+  M=(abs(xb - xs) + abs(yb - ys))
+  distance.append(M)
+  pcoords=set()
+  for m in range(M+1): # 0..M
+    k=M-m
+    pcoords.add((xs+m,ys+k))
+    pcoords.add((xs+m,ys-k))
+    pcoords.add((xs-m,ys+k))
+    pcoords.add((xs-m,ys-k))
+  perimeter.append(pcoords)
+  # print(perimeter[i])
+
+intersections=set()
+for i,s1 in enumerate(perimeter[:-1]):
+  for j,s2 in enumerate(perimeter[i+1:]):
+    intersect=s1.intersection(s2)
+    print(f"Set{i+1} and Set{i+j+2} =",len(intersect))
+    intersections = intersections.union(intersect)
+
+print('Total intersections:',len(intersections))
 
 # print('Distances:',distance)
-
-# build list of coords within manhattan distance for each sensor
 
 for Ty in range(Dsquare+1):
   if (Ty)%1000 == 0: print('Working on Y',Ty)
