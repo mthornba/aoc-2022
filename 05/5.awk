@@ -38,7 +38,13 @@ BEGIN{
   stack[9]="GLD"
 }
 {
-  if($1 != "move")next
+  if($1 != "move"){
+    n=split($0,a,"")
+    for(i=0;i<=n;i++){
+      if(a[i] ~ /[A-Z]/)print a[i]
+    }
+    next
+  }
   mv($2,$4,$6,mode)
 }
 END{
